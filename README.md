@@ -1,22 +1,32 @@
 # QWeather MCP Server
 
-A simple Model Context Protocol (MCP) server implementation in Rust for weather information.
+A Model Context Protocol (MCP) server implementation in Rust for weather information, built using the official Rust MCP SDK.
 
 ## Features
 
-This MCP server provides:
+This MCP server provides weather-related tools using the official [rmcp](https://github.com/modelcontextprotocol/rust-sdk) Rust SDK.
 
 ### Tools
 - **get_weather**: Get current weather information for a specified city
   - Input: `city` (string) - Name of the city
   - Output: Weather information including temperature, humidity, wind speed, and conditions
 
-### Resources
-- **weather://forecast**: Weather forecast data
-  - Provides 3-day weather forecast with detailed information
-  - Returns JSON data with temperature ranges, conditions, humidity, and wind speed
+## Implementation
+
+Built using the official MCP Rust SDK (`rmcp`) with:
+- **Modern async/await**: Built with Tokio for high-performance async operations
+- **Type-safe tools**: Using `#[tool]` decorators for automatic schema generation
+- **Proper error handling**: Complete MCP error responses and validation
+- **Official protocol compliance**: Uses the standard MCP protocol implementation
 
 ## Usage
+
+### Dependencies
+
+The server requires:
+- Rust 1.70+ 
+- Tokio runtime
+- Official MCP Rust SDK (`rmcp`)
 
 ### Building the Server
 ```bash
@@ -28,15 +38,9 @@ cargo build --release
 cargo run --bin qweather-mcp-server
 ```
 
-The server listens on stdin/stdout and communicates using the JSON-RPC protocol as defined by the Model Context Protocol specification.
+The server communicates via stdin/stdout using the JSON-RPC protocol as defined by the Model Context Protocol specification.
 
 ### Testing the Server
-Use the included test script:
-```bash
-./test_mcp_server.sh
-```
-
-Or test manually with JSON-RPC messages:
 
 #### Initialize the server
 ```json
@@ -53,40 +57,42 @@ Or test manually with JSON-RPC messages:
 {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "get_weather", "arguments": {"city": "Beijing"}}}
 ```
 
-#### List available resources
-```json
-{"jsonrpc": "2.0", "id": 4, "method": "resources/list", "params": {}}
-```
-
-#### Read weather forecast resource
-```json
-{"jsonrpc": "2.0", "id": 5, "method": "resources/read", "params": {"uri": "weather://forecast"}}
-```
-
 ## Implementation Notes
 
-This is a minimal MCP server implementation that demonstrates:
-- JSON-RPC 2.0 protocol handling
-- MCP standard method implementations (initialize, tools/list, tools/call, resources/list, resources/read)
-- Async I/O with tokio
-- Proper error handling and responses
+This implementation demonstrates:
+- Official MCP Rust SDK usage with `#[tool]` decorators
+- Type-safe parameter handling with automatic schema generation
+- Modern async Rust patterns with tokio
+- Proper MCP protocol compliance
 
 The weather data is currently simulated. In a production implementation, this would integrate with the QWeather API to provide real weather data.
 
 ## Protocol Compliance
 
-This server implements the Model Context Protocol (MCP) specification version 2024-11-05 and supports:
-- Server initialization
-- Tool listing and execution
-- Resource listing and reading
-- Proper JSON-RPC error handling
+This server implements the Model Context Protocol (MCP) specification using the official Rust SDK and supports:
+- Server initialization with proper capability advertisement
+- Tool listing and execution with type-safe parameters
+- Automatic JSON schema generation for tool inputs
+- Proper error handling and MCP-compliant responses
 
 ## Development
 
 The project structure:
-- `src/main.rs` - MCP server implementation
-- `src/lib.rs` - Library code (currently minimal)
-- `test_mcp_server.sh` - Test script for manual testing
+- `src/main.rs` - Main binary entry point
+- `src/server.rs` - MCP server implementation using rmcp SDK
+- `src/lib.rs` - Library exports
+
+### Dependencies
+
+```toml
+[dependencies]
+rmcp = { version = "0.6.0", features = ["server", "macros", "transport-io", "schemars"] }
+tokio = { version = "1.0", features = ["macros", "rt", "rt-multi-thread", "io-std"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+schemars = "1.0"
+```
 
 Run tests:
 ```bash
@@ -97,6 +103,7 @@ cargo test
 
 - Integration with real QWeather API
 - Additional weather tools (alerts, air quality, etc.)
+- Resource support (when available in rmcp SDK)
 - Configuration support
-- Logging improvements
-- Extended weather data resources
+- Enhanced error handling
+- Extended weather data capabilities
