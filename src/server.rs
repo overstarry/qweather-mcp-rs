@@ -1,55 +1,49 @@
 use rmcp::{
-    handler::server::wrapper::Parameters,
-    model::{CallToolResult, Content, ServerCapabilities, ServerInfo},
-    schemars, tool, ErrorData as McpError, ServerHandler,
+    ErrorData as McpError, handler::server::router::tool::ToolRouter, model::*, tool, tool_handler,
+    tool_router,
 };
-
-/// QWeather MCP Server implementation using the official Rust SDK
-///
-/// This server provides weather-related tools using the
-/// Model Context Protocol (MCP) with the QWeather API integration.
-
-#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
-#[allow(dead_code)]
-pub struct GetWeatherArgs {
-    /// Name of the city to get weather for
-    pub city: String,
-}
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 #[derive(Clone)]
-pub struct QWeatherMcpServer;
+pub struct Counter {
+    counter: Arc<Mutex<i32>>,
+    tool_router: ToolRouter<Self>,
+}
 
-impl QWeatherMcpServer {
+#[tool_router]
+impl Counter {
     pub fn new() -> Self {
-        Self
+        Self {
+            counter: Arc::new(Mutex::new(0)),
+            tool_router: Self::tool_router(),
+        }
     }
 
-    /// Get current weather information for a city
-    #[tool(description = "Get current weather information for a city")]
-    async fn get_weather(
-        &self,
-        Parameters(args): Parameters<GetWeatherArgs>,
-    ) -> Result<CallToolResult, McpError> {
-        // Simulate weather data - in a real implementation,
-        // this would call the QWeather API
-        let weather_info = format!(
-            "Weather in {}: Sunny, 22°C\n\
-            Humidity: 60%\n\
-            Wind Speed: 10 km/h\n\
-            Conditions: Clear skies with good visibility",
-            args.city
-        );
+    #[tool(description = "Increment the counter by 1")]
+    async fn increment(&self) -> Result<CallToolResult, McpError> {
+        let mut counter = self.counter.lock().await;
+        *counter += 1;
+        Ok(CallToolResult::success(vec![Content::text(
+            counter.to_string(),
+        )]))
+    }
 
-        Ok(CallToolResult::success(vec![Content::text(weather_info)]))
+    #[tool(description = "Get the current counter value")]
+    async fn get(&self) -> Result<CallToolResult, McpError> {
+        let counter = self.counter.lock().await;
+        Ok(CallToolResult::success(vec![Content::text(
+            counter.to_string(),
+        )]))
     }
 }
 
-impl ServerHandler for QWeatherMcpServer {
+// Implement the server handler
+#[tool_handler]
+impl rmcp::ServerHandler for Counter {
     fn get_info(&self) -> ServerInfo {
         ServerInfo {
-            instructions: Some(
-                "QWeather MCP Server - provides weather information and forecasts".into(),
-            ),
+            instructions: Some("A simple counter that tallies the number of times the increment tool has been used".into()),
             capabilities: ServerCapabilities::builder().enable_tools().build(),
             ..Default::default()
         }
