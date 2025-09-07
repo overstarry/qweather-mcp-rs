@@ -1,13 +1,16 @@
 use anyhow::Result;
 use rmcp::{ServiceExt, transport::stdio};
 
+use crate::server::Counter;
+
 mod server;
-use server::QWeatherMcpServer;
 
 #[tokio::main]
-async fn main() -> Result<()> {
-    // Create an instance of our QWeather MCP server
-    let service = QWeatherMcpServer::new().serve(stdio()).await?;
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let service = Counter::new()
+        .serve(stdio())
+        .await
+        .inspect_err(|e| println!("Error staring server: {}", e))?;
 
     // Wait for the service to complete
     service.waiting().await?;
