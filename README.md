@@ -43,9 +43,9 @@ cargo build --release
 
 - HTTP streaming (Streamable HTTP):
   ```bash
-  cargo run --bin qweather-mcp-server -- --http
+  cargo run --features http --bin qweather-mcp-server -- --http
   # or
-  QWEATHER_MCP_HTTP=1 cargo run --bin qweather-mcp-server
+  QWEATHER_MCP_HTTP=1 cargo run --features http --bin qweather-mcp-server
   ```
   - Bind address: `QWEATHER_MCP_HTTP_ADDR` (default `127.0.0.1:8000`)
   - Uses rmcp’s `StreamableHttpService` under the hood (axum server)

@@ -13,8 +13,8 @@
 - Quick JSON-RPC check (stdin/stdout):
   `echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | cargo run --quiet --bin qweather-mcp-server`
 - Run HTTP streaming mode (axum + rmcp Streamable HTTP):
-  - `cargo run --bin qweather-mcp-server -- --http`
-  - or `QWEATHER_MCP_HTTP=1 cargo run --bin qweather-mcp-server`
+  - `cargo run --features http --bin qweather-mcp-server -- --http`
+  - or `QWEATHER_MCP_HTTP=1 cargo run --features http --bin qweather-mcp-server`
   - Bind address: `QWEATHER_MCP_HTTP_ADDR` (default `127.0.0.1:8000`)
 - Lint: `cargo clippy --all-targets --all-features -- -D warnings`
 - Format: `cargo fmt --all`
