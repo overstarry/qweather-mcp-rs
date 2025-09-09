@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `src/main.rs`: Binary entry (`qweather-mcp-server`). Starts the MCP service over stdio using Tokio.
+- `src/main.rs`: Binary entry (`qweather-mcp-server`). Starts the MCP service over stdio using Tokio. Optional HTTP streaming server mode via `--http`.
 - `src/server.rs`: Server implementation with rmcp macros (`#[tool]`, `#[tool_router]`, `#[tool_handler]`).
 - `Cargo.toml`: Package metadata, dependencies, and bin target.
 - `target/`: Build artifacts (ignored). Editor folders like `.idea/` and `.zed` are local-only; don’t commit changes to them.
@@ -12,6 +12,10 @@
 - Run locally: `cargo run --bin qweather-mcp-server`
 - Quick JSON-RPC check (stdin/stdout):
   `echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | cargo run --quiet --bin qweather-mcp-server`
+- Run HTTP streaming mode (axum + rmcp Streamable HTTP):
+  - `cargo run --bin qweather-mcp-server -- --http`
+  - or `QWEATHER_MCP_HTTP=1 cargo run --bin qweather-mcp-server`
+  - Bind address: `QWEATHER_MCP_HTTP_ADDR` (default `127.0.0.1:8000`)
 - Lint: `cargo clippy --all-targets --all-features -- -D warnings`
 - Format: `cargo fmt --all`
 
@@ -35,4 +39,3 @@
 ## Security & Configuration Tips
 - Do not hardcode credentials. If/when API access is added, prefer env vars (e.g., `QWEATHER_API_KEY`).
 - Avoid logging secrets. Use structured errors (`anyhow`) and return MCP-compliant error responses via rmcp types.
-

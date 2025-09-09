@@ -34,11 +34,21 @@ cargo build --release
 ```
 
 ### Running the Server
-```bash
-cargo run --bin qweather-mcp-server
-```
 
-The server communicates via stdin/stdout using the JSON-RPC protocol as defined by the Model Context Protocol specification.
+- Stdio (default):
+  ```bash
+  cargo run --bin qweather-mcp-server
+  ```
+  Communicates via stdin/stdout using JSON-RPC.
+
+- HTTP streaming (Streamable HTTP):
+  ```bash
+  cargo run --bin qweather-mcp-server -- --http
+  # or
+  QWEATHER_MCP_HTTP=1 cargo run --bin qweather-mcp-server
+  ```
+  - Bind address: `QWEATHER_MCP_HTTP_ADDR` (default `127.0.0.1:8000`)
+  - Uses rmcp’s `StreamableHttpService` under the hood (axum server)
 
 ### Testing the Server
 
@@ -84,15 +94,7 @@ The project structure:
 
 ### Dependencies
 
-```toml
-[dependencies]
-rmcp = { version = "0.6.0", features = ["server", "macros", "transport-io", "schemars"] }
-tokio = { version = "1.0", features = ["macros", "rt", "rt-multi-thread", "io-std"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-anyhow = "1.0"
-schemars = "1.0"
-```
+See `Cargo.toml` for the exact versions. This server uses `rmcp` with stdio and Streamable HTTP features and `axum` for HTTP serving.
 
 Run tests:
 ```bash
